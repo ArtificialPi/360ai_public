@@ -1,0 +1,101 @@
+* {
+    box-sizing: border-box;
+    max-width: 100%;
+    text-align:center;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#wholePage {
+    display:flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    width:100%;
+    max-width:100%;
+    margin: 0 auto;
+    min-height: calc( 100vh - 180px - clamp(15px, 1vw, 25px) );
+}
+
+#footer {
+    max-width: 100%;
+    padding:25px 0 25px 0;
+    font-weight: bold;
+    font-size: clamp(20px, 1vw, 25px);
+    text-align: center;
+    min-height: calc( 50px + clamp(15px, 1vw, 25px) );
+}
+
+.titles {
+    font-size: clamp(40px, 2vw, 60px);
+    text-decoration: underline;
+    font-weight: bold;
+    margin: 25px 0 0 0;
+    word-wrap: break-word;
+}
+
+.paragraphs {
+    font-size: clamp(20px, 1vw, 30px);
+    margin:25px 0 0 0;
+    width: 1250px;
+}
+
+#navigationMainMenu {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 1880px;
+    height:auto;
+    margin:25px auto 25px auto;
+    flex-wrap: wrap;
+    max-width: 100%;
+    user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.navigationButton {
+    border: solid 1px transparent;
+    width: 250px;
+	max-width: calc( 100% - 2px );
+    min-height:100px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    text-decoration:none;
+    font-size: clamp(30px, 2vw, 40px);
+    font-weight: bold;
+    color: rgba(102, 153, 255,1);
+    cursor:pointer;
+    word-break:break-all;
+}
+
+.navigationButton:hover {
+    border: solid 1px;
+    width: 250px;
+	max-width: calc( 100% - 2px );
+    min-height:100px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(102, 153, 255,0.125);
+    margin: 0;
+    padding: 0;
+    text-decoration:none;
+    font-size: clamp(30px, 2vw, 40px);
+    font-weight: bold;
+    color: rgba(102, 153, 255,1);
+    border:solid 1px rgba(102, 153, 255,0.5);
+    cursor:pointer;
+    word-break:break-all;
+}

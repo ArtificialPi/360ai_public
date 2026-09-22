@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            360AI
+        </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/my_chat_style">
+        <link rel="icon" href="/favicon.ico" type="image/png">
+    </head>
+    <body>
+        <div id="wholePage">
+            <img src="favicon.ico" style="width:200px;margin:25px auto 0 auto;">
+            <div style="max-width: calc( 100% - 10px );width:1920px;border: none;text-align:right;">v0.0.1</div>
+            <hr style="border:solid 1px rgba(102, 153, 255, 0.5);max-width:100%;width:1920px;margin:25px 0 0 0;">
+            <div id="profileContainer">
+                <div id="navigationMainMenu">
+                    <a href="/profile" class="navigationButton" >Profile</a><a href="/search" class="navigationButton">Search</a><a href="/questionoranswer" class="navigationButton">Q/A</a><div class="navigationButton" >Open Field</div><a href='/options' class="navigationButton" >Options</a>
+                </div>
+            </div>
+            <hr style="border:solid 1px rgba(102, 153, 255, 0.5);max-width:100%;width:1920px;margin:0 0 0 0;">
+            <div id="chatFeed">
+                <div id="chatContainer">
+                    <div id="chatArrange">
+                        <div id="chatWindow">
+                        </div>
+                    </div>
+                </div>
+                <div style="max-width:100%;height:auto;display:flex;justify-content: center; align-items: center;margin:0 0 25px 0;padding:0;flex-direction: column;flex-wrap: wrap;">
+                <div id="markUpDecision" style="max-width:100%;width:400px;margin:0 0 0 0;display:flex;justify-content: center; align-items: center;margin:0;padding:0;flex-direction: row;flex-wrap: wrap;"><img src='/right' style="width:50px;margin:25px 12.5px;display:block;cursor:pointer;" onclick="rightAnswer();"><img src='/none' style="width:50px;margin:25px 12.5px;display:block;cursor:pointer;" onclick="noneAnswer();"><img src='/wrong' style="width:50px;margin:25px 12.5px;display:block;cursor:pointer;" onclick="wrongAnswer();"></div>
+                <div id="ratioAverage" style="word-break:break-all;max-width:100%;width:400px;margin:0 0 0 0;color: rgba(102, 153, 255,1);display:flex;justify-content: center; align-items: center;">Right: 0 Wrong: 0 Accuracy: 0%</div>
+                <div id="chatDots" style="max-width:100%;width:50px;margin:0 25px 0 25px;height:25px;"><img id="chatDotsImg" src="" /></div>
+                </div>
+                <textarea id="chatField" style="text-align: left;"></textarea>
+                <div id="textOptions" style="margin:25px 0 0 0;">
+                    <div class="chatButton">
+                        <div value="" id="searchChat" contenteditable="true"></div>
+                    </div>
+                    <div id="sortType" class="chatButton"  onClick="clickSort();">Sort: New</div>
+                    <div id="pageNumber">< 0 ></div>
+                </div>
+            </div>
+        </div>
+        <div id="footer">Copyright 360AI &copy; All Rights Reserved.</div>
+         <div id="virtualiou" style="">Virtual I.O.U: 0</div>
+         <div id="wipeButton" style="" ondblclick="wipeChat();">Wipe</div>
+        <img src="/up" id="upDir" style="" onclick="upDirection()">
+        <img src="/down" id="downDir" style="" onclick="downDirection()">
+        <div id="aiTypeChange" style="" ondblclick="changeAiEngine();">AI Engine:</div>
+        </body>
+    <script>
+        const handlers = {};
+        let aiType="<%= aiChoice %>";
+        let chatIdBubble=0;
+        let finalOutput;
+        let blockSwitch = false;
+        let blockedList = [];
+        let ws;
+        let isConnecting = false;
+        //let chatDotsTimeout = null;
+        let pageLimit=50;
+        let page=1;
+        let sectionAmount=5;
+        let chatGroupId='';
+        let chatPayload=[];
+        let chatPayloadData=[];
+        let chatInitialPayload=[];
+        let clientInput='';
+        let approved=0;
+        let denied=0
+        let accuracy=0;
+        let startAi=0;
+        //let autoResponse=false;
+        let chatAmount=0;
+        //let memory2=0;  
+        //let searchMemory=0;
+        let newMessages=[];
+        let aiChatId;
+        //let newSortMessages=[];
+        //let lastSeenMessageId = null;
+        //let incrementWatch=0;
+        //let controlDirection=false;
+        let messageIds = new Set();
+        //let initialStart = false;
+        //let fullyLoaded=0;
+        //let sentChat=false;
+        let autoResponded=false;
+        let aiDecide=false;
+        let aiInRoom=[];
+        let totalInRoom=0;
+        let aiAlreadyAnswered=[];  
+        let aiFound=false;
+        let aiVote=0;
+        let talked=false
+        let aiSpot=0;
+        //let aiDirection;
+        let aisTime=5000;
+        let aiPrep=true;
+        //let footerLoad=false;
+        let sortClick='';
+        let myMembershipNumber="<%= myMembershipNumber %>";
+         let myRecruiter="<%= myRecruiter %>";
+        let theirMembership="<%= membership %>";
+        //let firedOff=false;
+        let voting=false;
+        let markUpAIFlag=0;
+        let aisChatHistory=[];
+        let toCheck = 0;
+        //let sequenceLast;
+        let scrolling = false;
+        let cooldownTimer = null;
+        let chatField = document.getElementById("chatField");
+        let sendChat = 0;
+        let chatFieldMemory=0;
+        let aiAccessOverride="<%= aiAccessCode %>"||"";
+        let aiAccess=false;
+        var humanChatId=0;
+        let aiTalk=false;
+        let chatDotSwitch = 0;
+        //let chatDotKeyUp = 0;
+        //let chatDotTimeout = null;
+        let dotsActive = false;
+        //dotsActive = false;
+        let dotsTimer = null;
+        //dotsActive = false;
+        //dotsTimer = null;
+        //let dotsQueued = false;
+        //let searchChatData=[];
+        let inputField = document.getElementById('searchChat');
+        let searchingNow=false;
+        let searchingStill=false;
+        let sortClicked=false;
+        let sortClickLock=false;
+        let qora = ('<%= qora %>' === 'true');
+        let qoraType = '<%= qoraType %>';
+        let initialQora = '<%= initialQora %>';
+        //let initialSortQora = 0;
+        let firstLoad=0;
+        let startUpAiAccess='';
+        //loadPageChange=0;
+        let pageClick=0;
+        let pageClickLock = false;
+        //let bubble;
+        const chatWindow = document.getElementById("chatWindow");
+        //let previousChatAmount=0;
+        //let rememberVote;
+        let voteState = 0;
+        let initialLoad=0;
+        let vote = [];
+        let voteId;
+        //let counter=0;
+        //let timer=0;
+        //let aiText;
+        let aiAlready=false;
+        //let savedHeight=0;
+        let aiDecision;
+        let aiChatPosition;
+		connect();
+		
+		//Makes ON functions exist for the purpose of web socket
+        function on(event, fn) {
+            handlers[event] = fn;
+        }        
+        
+        //The GUI AI type can be changed using the following
+        function changeAiEngine() {
+            if(aiDecision==false) {
+				document.getElementById("aiTypeChange").innerHTML="AI Engine: ON";
+				emit("aiEngagement", chatGroupId, true);
+				aiTalkingTime(myMembershipNumber);
+			} else {
+				document.getElementById("aiTypeChange").innerHTML="AI Engine: OFF";
+				emit("aiEngagement", chatGroupId, false);
+			}
+        }        
+        
+        //The GUI up key for scrolling
+        function upDirection() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+		
+		//The GUI down key for scrolling
+        function downDirection() {
+            const chatField = document.querySelector("#chatField");
+            scrollToMiddle(chatField);
+        }
+        
+        //This code is for the AI vote system. When 50% or more have vote, do this
+        on("continueEveryone", data => {
+            aiVote++;
+            document.getElementById("ratioAverage").innerHTML =
+            "Right: " + data.approved + " Wrong: " + data.denied + " Accuracy: " + data.accuracy + "% " + "Calibration: "+data.totalWeight;
+            console.log("Votes: "+aiVote);
+            if(aiVote / totalInRoom >= 0.5) {
+				aiVote=0;voting=false;
+                autoResponded=false;
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();          
+                talked=false;
+                if(aiDecision==true||aiInRoom.length>0) {
+					if(aiChatPosition) {
+						aisChatHistory[aiChatPosition][12]=1;
+					}
+					//alert(aisChatHistory[aiChatPosition][12]);
+                    emit("aiEngagement2", chatGroupId);
+                    aiTalkingTime(myMembershipNumber);
+                }
+            }
+        })
+        
+        //Voting AI as right answer logic
+        async function rightAnswer() {
+            if (aiVote / totalInRoom < 0.5 && autoResponded==true) {
+				/*for (let i = 0; i < aisChatHistory.length-1; i++) {
+					if(aisChatHistory[i][13]==aiChatId) {
+						aisChatHistory[i][12]==1;
+					}
+				}*/
+                let chatMessage;
+                let aiMembership;
+				chatMessage = newMessages[0][0];
+				aiMembership = newMessages[0][1];
+                let aiChatIdHuman=Number(aiChatId)||0;
+                let markUpAI = [chatIdBubble, "approved", aiMembership, chatMessage, aiChatIdHuman];
+                const markupResponse = await fetch("/requestProcessing", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ markUpAI }),
+                });
+
+                const result = await markupResponse.json();
+                approved = result.approved;
+                denied = result.denied;
+                accuracy = result.accuracy;
+                totalWeight = result.totalWeight;
+                viou=Number(result.viou);
+                markUpAIFlag=result.markUpAI;
+                if(viou>0) {
+                    document.getElementById('virtualiou').innerHTML="Virtual I.O.U: "+viou.toFixed(2);
+                } else {
+                    document.getElementById('virtualiou').innerHTML="Virtual I.O.U: 0"; 
+                }
+                aiDecide=true;
+                document.getElementById("ratioAverage").innerHTML =
+                    "Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight;
+
+                console.log("Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight);
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();
+                emit("continueAi", chatGroupId, approved, denied, accuracy, totalWeight); 
+            }
+        }
+
+		//Voting AI as wrong answer logic
+        async function wrongAnswer() {
+            if (aiVote / totalInRoom < 0.5 && autoResponded==true) {
+				/*for (let i = 0; i < aisChatHistory.length-1; i++) {
+					if(aisChatHistory[i][13]==aiChatId) {
+						aisChatHistory[i][12]==1;
+					}
+				}*/
+                let chatMessage;
+                let aiMembership;
+				chatMessage = newMessages[0][0];
+				aiMembership = newMessages[0][1];
+                let aiChatIdHuman=Number(aiChatId)||0;
+                let markUpAI = [chatIdBubble, "denied", aiMembership, chatMessage, aiChatIdHuman];
+                const markupResponse = await fetch("/requestProcessing", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ markUpAI }),
+                });
+                const result = await markupResponse.json();
+                approved = result.approved;
+                denied = result.denied;
+                accuracy = result.accuracy;
+                totalWeight = result.totalWeight;
+                viou=Number(result.viou);
+                markUpAIFlag=result.markUpAI;
+                if(viou>0) {
+                    document.getElementById('virtualiou').innerHTML="Virtual I.O.U: "+viou.toFixed(2);
+                } else {
+                    document.getElementById('virtualiou').innerHTML="Virtual I.O.U: 0"; 
+                }
+                aiDecide=true;
+                document.getElementById("ratioAverage").innerHTML =
+                    "Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight;
+
+                console.log("Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight);
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();
+                emit("continueAi", chatGroupId, approved, denied, accuracy, totalWeight);
+            }
+        }
+		
+		//Voting AI as none answer logic
+        async function noneAnswer() {
+            if (aiVote / totalInRoom < 0.5 && autoResponded==true) {
+				/*for (let i = 0; i < aisChatHistory.length-1; i++) {
+					if(aisChatHistory[i][13]==aiChatId) {
+						aisChatHistory[i][12]==1;
+					}
+				}*/
+                let chatMessage;
+                let aiMembership;
+				chatMessage = newMessages[0][0];
+				aiMembership = newMessages[0][1];
+                let aiChatIdHuman=Number(aiChatId)||0;
+                let markUpAI = [chatIdBubble, "none", aiMembership, chatMessage, aiChatIdHuman];
+                const markupResponse = await fetch("/requestProcessing", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ markUpAI }),
+                });
+                const result = await markupResponse.json();
+                approved = result.approved;
+                denied = result.denied;
+                accuracy = result.accuracy;
+                totalWeight = result.totalWeight;
+                viou = Number(result.viou);
+                markUpAIFlag=result.markUpAI;
+                if(viou>0) {
+                    document.getElementById('virtualiou').innerHTML="Virtual I.O.U: "+viou.toFixed(2);
+                } else {
+                document.getElementById('virtualiou').innerHTML="Virtual I.O.U: 0"; 
+                }
+                aiDecide=true;
+                document.getElementById("ratioAverage").innerHTML =
+                    "Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight;
+
+                console.log("Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% " + "Calibration: "+totalWeight);
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();
+                emit("continueAi", chatGroupId, approved, denied, accuracy, totalWeight);   
+            }
+        }
+
+		//Chat dots for when your talking. This logic passes it to webSocketLogic.js for the purpose of everyone seeing it in the same group
+        function chatDots(time) {
+            emit("chatDots", chatGroupId, time);
+        }        
+		
+		//This is the client blocking logic
+        async function blockingNow(theirMembership) {
+            if(!blockSwitch) {
+                setTimeout(() => {
+                    blockSwitch = false;
+                }, 10000);
+                blockSwitch=true;
+                let blockWhom = theirMembership;
+                const response = await fetch("/requestProcessing", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ blockWhom }),
+                });
+                chatWindow.innerHTML='';
+                loadChatChange(false);
+            }
+        }
+
+        //This checks if clients are blocked. If so, excluded from loading up
+        async function blockedListChecking() {
+            let blockedListCheck=true;
+            const response = await fetch("/requestProcessing", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ blockedListCheck }),
+            });
+            if(response.ok) {
+                const results = await response.json();
+                if(results.membershipNumbers && results.membershipNumbers.length > 0) {
+                    blockedList = results.membershipNumbers;
+                }
+            }
+        }        
+
+		//Websocket logic connection for frontend     
+        function connect() {
+            if (isConnecting) return;
+            if (ws && ws.readyState === WebSocket.CONNECTING) return;
+            isConnecting = true;
+			if (window.location.hostname === "localhost") {
+				ws = new WebSocket("ws://localhost:3000");
+			} else if (window.location.hostname.startsWith("10.")) {
+				ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+			} else if (window.location.protocol === "https:") {
+				ws = new WebSocket(`wss://${window.location.hostname}`); 
+			} else {
+				ws = new WebSocket(`ws://${window.location.hostname}`); 
+			}
+
+            ws.onclose = () => {
+                isConnecting = false;
+                ws = null;
+            };
+            ws.onerror = () => {
+                isConnecting = false;
+            };
+            ws.onmessage = (msg) => {
+                const { event, data } = JSON.parse(msg.data);
+                if (handlers[event]) handlers[event](data);
+            };
+            ws.addEventListener("open", () => {
+                //ensureWSOpen(loadChatChange);
+                loadChatChange(false);
+                isConnecting = false;
+            });
+        }
+		
+		//Reconnection for websocket
+        function attemptReconnect() {
+            setTimeout(() => {
+                connect();
+            }, 100);
+        }
+        
+        //If users visibility of page is obscured, reload chat log
+        document.addEventListener("visibilitychange", () => {       
+            if (document.visibilityState === "visible") {
+                if(chatGroupId) {
+					loadChatChange(false);
+				}
+            }
+        });
+		
+		//LEGACY?
+        async function joinChat() {
+            if(qora===true) {
+                document.getElementById('sortType').innerHTML='Sort: Old';
+                sortClick="old";
+            } else if(qora===false) {
+                document.getElementById('sortType').innerHTML='Sort: New';
+                sortClick="new";
+            }
+            let chatInitialPayload=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+            await blockedListChecking();
+            ws.send(JSON.stringify({
+                event: "joinChat",
+                data: [
+                    chatInitialPayload
+                ]
+            }));
+        }
+        
+        //Handler for vote updating via websocket
+        handlers.voteUpdate = (data) => {
+            const { chatId, voteYes, voteNo } = data;
+
+            const bubble = document.getElementById(`message-${chatId}`);
+            if (!bubble) return;
+
+            const yesButton = bubble.querySelector(".yes");
+            const noButton = bubble.querySelector(".no");
+
+            if (yesButton && noButton) {
+                yesButton.textContent = "Yes: " + voteYes;
+                noButton.textContent = "No: " + voteNo;
+            }
+        };
+		
+		//Handler for chat dots via websocket
+        handlers.chatDots = async (data) => {
+            await playUpdateDots(data.time);
+        };
+
+		//This is for custom/shortform function to show emit instead
+        function emit(event, ...data) {
+            const payload = JSON.stringify({ event, data });
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+                connect();
+            }
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(payload);
+            }
+        }
+		
+		//When webSocketLogic.js sends joinedChat response, it comes here
+        on("anExtension", data => {            
+            viou = Number(data.viou);
+            if(viou>0) {
+                document.getElementById('virtualiou').innerHTML="Virtual I.O.U: "+viou.toFixed(2);
+            } else {
+                document.getElementById('virtualiou').innerHTML="Virtual I.O.U: 0"; 
+            }
+            approved=data.approved;
+            denied=data.denied;
+            accuracy=data.accuracy;
+            finalOutput=data.finalOutput;
+            if(data.chatGroupIdTemp && data.chatGroupIdTemp!='undefined') {
+                if (data.startAiResult === true) {
+                    return;
+                }
+                let chatPayloadLoading=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+                let chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora, firstLoad, chatAmount, false];
+                ws.send(JSON.stringify({
+                    event: "loadChat",
+                    data: [
+                        chatPayloadLoading,
+                        chatPayloadInfo,
+                        newMessages,
+                        false,
+                        blockedList,
+                        startAi,
+                        true
+                    ]
+                }));
+            }
+        });
+        
+        //Logic that counts the amount of clients in chat room
+        on("figureRoomCount", data => {
+            totalInRoom=data.roomCount;
+            if(data.aiInRoom) {
+                aiInRoom=[];
+                aiInRoom.push(data.aiInRoom);
+            }
+            if(data.getReady==true&&aiType=="everyone") {
+                autoResponded=true;aiTalk=false;
+            }
+        })
+		
+		
+        //This is the portion that stimulates AIs backend on a frontend level
+        function aiTalkingTime(membership) {
+			aiPrep=true;
+			console.log("AI begins getting ready to talk..");
+			setTimeout(() => {
+				/*console.log("talked = "+talked);*/console.log("voting = "+voting);console.log("dotsActive = "+dotsActive);console.log("aiDecision = "+aiDecision);
+				if (/*talked===false&&*//*&&aiAlready==true*/voting==false&&dotsActive==false&&aiDecision==true) {
+					aiPrep=false;
+					aisTime=5000;
+					talked=true;
+					
+					let chatField = document.getElementById("chatField");
+					let aisMessage="";
+					//aiFound=false;
+					//console.log('AI finding closest conversation..');
+					//console.log('AI descending');
+					
+					/*
+					for (let i = 0; i < aisChatHistory.length-1; i++) {
+						if(aisChatHistory[i][5]==aiChatId) {
+							const clientChatId = aisChatHistory[i][13];
+							alert(clientChatId);
+							alert();
+							for (let j = 0; j < aisChatHistory.length-1; j++) {
+								if(aisChatHistory[i][5]==clientChatId) {
+									alert(clientChatId+" hit!")
+									aisChatHistory[i][12]=1;
+								}
+							}
+						}
+					}
+					*/
+					
+					for (let i = 0; i <= aisChatHistory.length-1; i++) {
+						const msgText = aisChatHistory[i][0];
+						const membership = aisChatHistory[i][1];
+						console.log(aisChatHistory[i]);						
+						if (Number(aisChatHistory[i][12])===1 || membership.endsWith('-AI')) {
+							continue
+						}
+						//alert(aisChatHistory[i]);
+						if (Number(aisChatHistory[i][12])===0 && !membership.endsWith('-AI')) {
+							aiChatPosition=i;
+							//alert(aisChatHistory[i]);
+							//aiAlreadyAnswered.push(msgText);
+							chatIdBubble=aisChatHistory[i][5];
+							aiChatId=aisChatHistory[i][13];
+							aiSpot=aiChatId;
+							aisMessage = aisChatHistory[i][0];
+							chatPayloadData = [
+								aisMessage,
+								chatGroupId,
+								"<%= username %>",
+								"<%= membership %>",
+								"<%= botPic %>",
+								"<%= myUsername %>",
+								"<%= myMembershipNumber %>",
+								"<%= myBotPic %>",
+								qora,
+								qoraType
+							];
+							console.log("AI trying to converse now..");
+							let chatPayloadLoading=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+							let chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora, firstLoad, chatAmount, false];
+							if(!firstLoad) {
+								//emit("aiEngagement2", chatGroupId);
+								//emit("aiEngagement2", chatGroupId);
+								setTimeout(() => emit("aiResponding", chatPayloadData, chatGroupId, chatIdBubble, aiInRoom, chatPayloadLoading, chatPayloadInfo, aisChatHistory, false, blockedList, startAi, startUpAiAccess, aiAccess, myMembershipNumber, aiType, aiSpot, aisChatHistory[i][5] ), 2500);
+							} else {
+								//emit("aiEngagement2", chatGroupId);
+								setTimeout(() => emit("aiResponding", chatPayloadData, chatGroupId, chatIdBubble, aiInRoom, chatPayloadLoading, chatPayloadInfo, aisChatHistory, false, blockedList, startAi, startUpAiAccess, aiAccess, myMembershipNumber, aiType, aiSpot, aisChatHistory[i][5] ), 2500);
+							}
+							setTimeout(() => {playUpdateDots(2000);chatDots(2000)}, 500);
+							talked=false;
+							break;
+						}					
+					}               
+				}
+				if(aiDecision==true&&dotsActive==true) {
+					aiTalkingTime(membership);
+				}
+			}, aisTime);
+        }
+        
+        //This logic turns ON/OFF AI auto response, calculates vote over & the commencing of voting
+        on("aiEngine", payload => {
+			aiDecision=payload.aiDecision;
+			startAi=payload.aiDecision;
+			if(payload.changer) {
+				if(!aiDecision) {
+					alert('AI Engine OFF');
+				} else {
+					alert('AI Engine ON');		
+				}
+			}		
+        });
+		
+		//Logic loops around and tries to update everyone when new client joins chat room. Besides that, the changing of AI type
+        on("votingSwitch", payload => {
+            voting=false;
+        });
+	
+        //This is the payload for the entire chat conversation. Starts here on a websocket level
+        on("chatPayloadPrivate", payload => {
+            handleChatPay(payload);
+        });
+        
+        //This takes the payload, sorts, loads arrays with and such before handing over to be generated
+        async function handleChatPay(payload) {
+			if(totalInRoom<=1 && !firstLoad) {
+				aiDecision=0;startAi=0;
+			}
+            let spliceSortClicked=sortClicked;
+            let markUpAI  = 1;
+            let membership = "";    
+            if (!firstLoad || searchingNow === true || sortClicked === true || pageClick === 1) {
+                newMessages = [...payload.chatPayloadTemp];
+                aisChatHistory=[...payload.aisChatHistory];
+                aisChatHistory = aisChatHistory.map(w => Object.values(w));
+                if(sortClicked) {
+                    aisChatHistory.sort((a, b) => b[6] - a[6]);
+                } else {
+                    aisChatHistory.sort((a, b) => a[6] - b[6]);                  
+                }
+                chatAmount=payload.chatAmountTemp;
+                newMessages.forEach(row => {
+                    const id = row[5];
+                    messageIds.add(id);
+                });
+                chatGroupId=payload.chatGroupIdTemp;
+                approved = payload.approved;
+                denied = payload.denied;
+                accuracy = payload.accuracy;
+                totalWeight = payload.totalWeight;
+                document.getElementById("ratioAverage").innerHTML = "Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% "+"Calibration: "+totalWeight;
+                if (searchingNow === true || sortClicked === true || pageClick === 1) {
+                    toCheck=1;
+                }
+                sortClicked=false;
+                pageClick=false;searchingNow=false;
+                pageClickLock=false;
+                sortClickLock=false;
+                await pageChange(page);                
+                if(chatGroupId) {
+                    emit("aiEngagement3", chatGroupId, null, myMembershipNumber, true, null);
+                }
+                if(newMessages.length>0) {
+                    document.getElementById("textOptions").style.display="flex";
+                }
+                firstLoad=true;
+                if(newMessages.length>0) {
+                    chatIdBubble=newMessages[0][5];
+					aiChatId=newMessages[0][13];
+					markUpAI=newMessages[0][12];
+					membership=newMessages[0][1];
+                }
+            } else {
+                newMessages=payload.chatPayloadTemp;
+                humanChatId=newMessages[0][5];
+                chatAmount=payload.chatAmountTemp;
+                chatGroupId=payload.chatGroupIdTemp;
+                aisChatHistory = aisChatHistory.map(w => Object.values(w));
+                if(payload.aisChatHistory!==undefined) {
+                    aisChatExtraction = payload.aisChatHistory;
+                    aisChatExtraction = aisChatExtraction.map(w => Object.values(w));
+                    
+                } 
+                if(!sortClicked) {
+                    payload.chatPayloadTemp.sort((a,b) => a[6] - b[6]);
+                    aisChatExtraction.sort((a, b) => a[6] - b[6]);
+                } else {
+                    payload.chatPayloadTemp.sort((a,b) => b[6] - a[6]);
+                    aisChatExtraction.sort((a, b) => b[6] - a[6]);                 
+                }
+                aisChatHistory.splice(aisChatHistory.length, 0, ...aisChatExtraction);
+                for (const row of payload.chatPayloadTemp) {
+                    const id = row[5];
+                    if (!messageIds.has(id)) {
+                        messageIds.add(id);
+                        await appendMessage(row);
+                    }
+                }
+                if(sortClicked) {
+                    newMessages.sort((a, b) => a[5] - b[5]);
+                } else {
+                    newMessages.sort((a, b) => b[5] - a[5]);
+                }
+                if(newMessages.length>0) {
+                    chatIdBubble=newMessages[0][5];
+					aiChatId=newMessages[0][13];
+					markUpAI=newMessages[0][12];
+					membership=newMessages[0][1];
+                }
+                approved = payload.approved;
+                denied = payload.denied;
+                accuracy = payload.accuracy;
+                totalWeight = payload.totalWeight;
+                document.getElementById("ratioAverage").innerHTML = "Right: " + approved + " Wrong: " + denied + " Accuracy: " + accuracy + "% "+"Calibration: "+totalWeight;  
+            }
+            if (membership.endsWith("-AI") && page==1 && !markUpAI) {
+                autoResponded=true;
+                voting=true;
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "rgb(217, 217, 217,0.5)";
+                chat.style.pointerEvents = "none";
+                chat.style.userSelect = "none";
+                chat.blur();
+            } 
+			let viou=Number(payload.viou);
+            if(viou>0 && payload.membership==myMembershipNumber) {
+                document.getElementById('virtualiou').innerHTML="Virtual I.O.U: "+viou.toFixed(2);
+            } else {
+                document.getElementById('virtualiou').innerHTML="Virtual I.O.U: 0";
+            }
+			if(aiDecision) {
+				document.getElementById("aiTypeChange").innerHTML="AI Engine: ON";
+			} else {
+				document.getElementById("aiTypeChange").innerHTML="AI Engine: OFF";
+			}
+        }
+
+		//10 second wait period if scolled before incoming chat messages force scroll you to it
+        window.addEventListener("scroll", () => {
+            scrolling = true;
+            clearTimeout(cooldownTimer);
+            cooldownTimer = setTimeout(() => {
+                scrolling = false;
+            }, 1000);
+        });
+		
+		//Appending new chat messages into HTML document/new message
+        async function appendMessage(row) {
+            if(messageIds.length>pageLimit) {
+                sendChat=false;
+               const bubble = document.querySelector("#chatWindow .messageBubble:first-child");
+                if (bubble) bubble.remove();
+            }
+            const chatWindow = document.getElementById("chatWindow");
+            let [messageText, membershipNumber, author, botId, timestamp, chatIdTemp, messageOrder, voteYes, voteNo, weight, dupeCheck, status, markUpAi, rememberAi, targetsMsg] = row;
+            if (!voteYes) voteYes = 0;
+            if (!voteNo) voteNo = 0;
+            vote = [];
+            voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+            if (voteId !== null) vote.push(voteId);
+            const yesButton = document.createElement("div");
+            yesButton.className = "yes";
+            yesButton.style.cursor = "pointer";
+			yesButton.style.userSelect = "none";
+			yesButton.style.webkitTapHighlightColor = "transparent";
+            yesButton.appendChild(document.createTextNode("Yes: " + voteYes));
+            yesButton.ondblclick = async (e) => {
+				e.stopPropagation();
+				vote = [];
+				voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+				if (voteId !== null) {
+					vote.push(voteId);
+				}
+				
+				let found=false;
+				for (let i = 0; i < vote.length; i++) {
+					if (vote[i][0] === chatIdTemp) {
+						found=true;
+						break;
+					}
+				}
+				if(found===false) {
+					voteYes++;
+					castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+					voteState=1;
+				} else {
+					if(voteState==2) {
+						voteYes++;
+						voteNo--;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+						voteState=0;
+					} else {
+						voteYes--;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+						voteState=0;
+					}
+				}
+				yesButton.textContent = "Yes: " + voteYes;
+				noButton.textContent = "No: " + voteNo;					
+			};		
+			const noButton = document.createElement("div");
+			noButton.className = "no";
+			noButton.style.cursor = "pointer";
+			noButton.style.userSelect = "none";
+			noButton.style.webkitTapHighlightColor = "transparent";
+			noButton.appendChild(document.createTextNode("No: "+voteNo));
+			noButton.ondblclick = async (e) => {
+				e.stopPropagation();
+				vote = [];
+				voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+				if (voteId !== null) {
+					vote.push(voteId);
+				}
+				let found=false;
+				for (let i = 0; i < vote.length; i++) {
+					if (vote[i][0] == chatIdTemp) {
+						found=true;
+						break;
+					}
+				}
+				if(found===false) {
+					voteNo++;
+					castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+					voteState=2;
+				} else {
+					if(voteState==1) {
+						voteYes--;
+						voteNo++;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+						voteState=0;
+					} else {
+						voteNo--;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+						voteState=0;
+					}
+				}
+				yesButton.textContent = "Yes: " + voteYes;
+				noButton.textContent = "No: " + voteNo;				
+			}; 
+            const reportButton = document.createElement("div");
+            reportButton.className = "report";
+            reportButton.appendChild(document.createTextNode("Report"));
+            const blockButton = document.createElement("div");
+            blockButton.className = "block";
+            blockButton.appendChild(document.createTextNode("Block"));
+            blockButton.onclick = async (e) => {
+                e.stopPropagation();
+                let blockMembership = membershipNumber;
+                await blockingNow(blockMembership);
+
+                let chatPayloadLoading = [0, chatGroupId, "<%= username %>", "<%= membership %>", "<%= botPic %>", "<%= myUsername %>", "<%= myMembershipNumber %>", "<%= myBotPic %>"];
+                let chatPayloadInfo = [page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora, firstLoad, chatAmount];
+
+                emit("loadChat", chatPayloadLoading, chatPayloadInfo, newMessages, true, blockedList, startAi);
+            };
+            const messageOrderNumber = document.createElement("div");
+            messageOrderNumber.className = "messageOrder";
+            messageOrderNumber.appendChild(document.createTextNode("Message " + (messageOrder)));
+            const bubble = document.createElement("div");
+            bubble.className = "messageBubble";
+            bubble.id = `message-${chatIdTemp}`;
+            const filler = document.createElement("div");
+            filler.className = "messageBubbleFiller";
+            const filler2 = document.createElement("div");
+            filler2.className = "messageBubbleFiller2";
+            const settings2 = document.createElement("div");
+            const msg2 = document.createElement("div");
+            if(membershipNumber.endsWith("-AI")) {
+                settings2.className = "messageSettings2";
+                const bold2 = document.createElement("b");
+                bold2.textContent = "Replying to:";         
+                settings2.appendChild(bold2);
+                msg2.className = "aisReply";
+                msg2.textContent = targetsMsg;
+            }
+            const img = document.createElement("img");
+            img.className = "bubbleDisplayPic";
+            if(membershipNumber.endsWith("-AI")) {
+				img.src = `/favicon.ico`;
+			} else {
+				img.src = `/bots/bot (${botId}).jpg`;
+			}
+            const settings = document.createElement("div");
+            settings.className = "messageSettings";
+            if(membershipNumber.endsWith("-AI")) {
+				const aiTitle = document.createElement("span");
+				aiTitle.style.color = "blue";
+				aiTitle.textContent = "360";
+				aiTitle.style.marginRight = "0";
+				settings.appendChild(aiTitle);
+			} else {
+				settings.appendChild(document.createTextNode(author));
+			}
+            settings.appendChild(document.createTextNode("\u00A0"));
+
+            const bold = document.createElement("b");
+            bold.textContent = "Said:";
+            settings.appendChild(bold);
+            const msg = document.createElement("div");
+            msg.className = "theMessage";
+            msg.textContent = messageText;
+            filler.appendChild(messageOrderNumber);
+            filler.appendChild(img);
+            filler.appendChild(document.createTextNode("\u00A0"));
+            filler.appendChild(settings);
+            filler.appendChild(msg);
+            if (!membershipNumber.endsWith("-AI")) {
+                filler.appendChild(yesButton);
+                filler.appendChild(noButton);
+                filler.appendChild(reportButton);
+                filler.appendChild(blockButton);
+            }
+            if (membershipNumber.endsWith("-AI")) {
+                const aiAsking = document.createElement("span");
+                aiAsking.style.marginTop = "12.5px";
+                aiAsking.style.color = "black";
+                aiAsking.textContent = "Is this correct?";
+                filler.appendChild(aiAsking);
+            }
+            if(membershipNumber.endsWith("-AI")) {
+                filler2.appendChild(settings2);
+                settings2.appendChild(msg2);
+            }
+            if(membershipNumber.endsWith("-AI")) {
+                bubble.appendChild(filler2);
+            }
+            bubble.appendChild(filler);
+            chatWindow.appendChild(bubble);
+            const lc=chatWindow.lastElementChild;
+            scrollToMiddleFast(lc);
+        }
+
+        //AI access is secured and requires an access code at the moment
+        if(aiAccessOverride||myMembershipNumber=='JnOhKmAZaE9aIk5i'||myMembershipNumber=='nfwreXHK44zEjilL'/*||myMembershipNumber=='pmPCfRFdBOsCndAS'|*/) {
+            aiAccess=true;
+        }
+        
+        //When enter on chatField, send the message in the following way
+        chatField.addEventListener("keydown", async function (event) {
+            scrolling=false;
+            const text = chatField.value;
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                /*
+                const userInput = String(chatField.value).trim();
+                const accessCode = String(startUpAiAccess).trim();
+                if (userInput==accessCode&&!aiAccess) {
+                    chatField.value = null;
+                    aiAccess=true;
+                    await fetch("/requestProcessing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ accessCode }),
+                    });
+                    //alert('Access Granted!');
+                    //return;
+                } else if(!aiAccess) {
+                    chatField.value = null;
+                    //alert('Access Denied. Consult Administration.');
+                    //return;
+                }
+                if(chatField.value==startUpAiAccess || aiAccess ) {*/
+				if(chatField.value.trim() !== "") { 
+					chatPayloadData=[chatField.value.slice(0,1400), chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>", qora, qoraType];
+					chatField.value = null;
+					chatDotSwitch=0;
+					let chatPayloadLoading=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+					let chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, true];
+					let chatInitialPayload=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+					aiDecide=false;
+					/*
+					if(aiAlready && aiType=="everyone"&&!aiTalk) {
+						talked=false;aiTalk=true;
+						if(aiPrep==false) {
+							aiTalkingTime(myMembershipNumber+"-AI");
+						}
+					}
+					*/
+					if(aiDecision) {    
+						setTimeout(() => {
+							playUpdateDots(1000);
+							chatDots(1000);                       
+						}, 500);
+						setTimeout(() => {
+							const safePayload = {
+								event: "sendChat",
+								data: [
+									JSON.parse(JSON.stringify(chatPayloadData)),
+									JSON.parse(JSON.stringify(chatPayloadLoading)),
+									JSON.parse(JSON.stringify(chatPayloadInfo)),
+									JSON.parse(JSON.stringify(newMessages)),
+									JSON.parse(JSON.stringify(chatInitialPayload)),
+									startAi,
+									aiType
+								]
+							};
+							ws.send(JSON.stringify(safePayload));   
+						}, 1500);
+						aisTime=15000;
+					} else {
+						stopUpdateDots();
+						const safePayload = {
+							event: "sendChat",
+							data: [
+								JSON.parse(JSON.stringify(chatPayloadData)),
+								JSON.parse(JSON.stringify(chatPayloadLoading)),
+								JSON.parse(JSON.stringify(chatPayloadInfo)),
+								JSON.parse(JSON.stringify(newMessages)),
+								JSON.parse(JSON.stringify(chatInitialPayload)),
+								startAi,
+								aiType
+							]
+						};
+						ws.send(JSON.stringify(safePayload));
+					}
+				}
+                //}
+            }
+        })
+        
+        //Showing and removing of chat dots when typing in input field
+        chatField.addEventListener("input", async function(event) {
+            const text = chatField.value;
+            if (text.length === 0) {
+                chatFieldMemory = 0;
+                stopUpdateDots();
+                return;
+            }
+            if (chatFieldMemory !== text.length) {
+                chatFieldMemory = text.length;
+                playUpdateDots(1000);
+                chatDots(1000);
+                return;
+            }
+        });
+
+		//The animation for chat dots to appear when typing in input field
+        function playUpdateDots(time) {
+            const container = document.getElementById("chatDots");
+            if (!dotsActive) {
+                dotsActive = true;
+                const old = document.getElementById("chatDotsImg");
+                if (old) old.remove();
+                const img = document.createElement("img");
+                img.id = "chatDotsImg";
+                img.style.display = "inline";
+                img.src = `/chatDots?${Date.now()}`;
+                container.appendChild(img);
+            }
+            if (dotsTimer) clearTimeout(dotsTimer);
+            dotsTimer = setTimeout(() => {
+                stopUpdateDots();
+            }, time);
+        }
+		
+		//The stop logic for chat dots
+        function stopUpdateDots() {
+            dotsActive = false;
+            const old = document.getElementById("chatDotsImg");
+            if (old) old.remove();
+            if (dotsTimer) {
+                clearTimeout(dotsTimer);
+                dotsTimer = null;
+            }
+        }
+
+        //The search input field logic
+        inputField.addEventListener('input', (event) => {
+            const raw = inputField.innerText;
+            if (raw.trim() !== '') {
+                if(page<(chatAmount/pageLimit)) {
+                    page=1;
+                }
+                firstLoad=false;
+                searchingNow = true;
+                searchingStill = true;
+                clientInput = raw;
+                messageIds.clear();
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();
+                pageChange(page);
+            } 
+            else if (searchingStill) {
+                searchingNow = true;
+                clientInput = '';
+                searchingStill = false;
+                const chat = document.getElementById("chatField");
+                chat.style.backgroundColor = "";
+                chat.style.pointerEvents = "";
+                chat.style.userSelect = "";
+                chat.blur();
+                pageChange(page);
+            }
+        });
+
+        //The sort logic when button clicked
+        function clickSort() {
+            if (sortClickLock) return;
+            sortClickLock = true;
+            firstLoad=false;
+            messageIds.clear();
+            sortClicked=true;
+            if(document.getElementById('sortType').innerHTML=='Sort: New') {
+                document.getElementById('sortType').innerHTML='Sort: Old';
+                sortClick="old";
+            } else {
+                document.getElementById('sortType').innerHTML='Sort: New';
+                sortClick="new";
+            }
+            const chat = document.getElementById("chatField");
+            chat.style.backgroundColor = "";
+            chat.style.pointerEvents = "";
+            chat.style.userSelect = "";
+            chat.blur();
+            pageChange(page);
+        }
+        
+        //When pagination HTML loading on document
+        function pageLoad() {
+            totalChats=chatAmount;
+            if(!totalChats) {
+                totalChats=0;
+            }
+            pageData='<div onClick="pageDetectClick(\'back\');"><</div>';
+            if(Math.ceil(totalChats/pageLimit)<Math.ceil(page/sectionAmount)*sectionAmount) {
+                insertNew=Math.ceil(totalChats/pageLimit);
+            } else {
+                insertNew=Math.ceil(page/sectionAmount)*sectionAmount;
+            }
+            for(i=(Math.ceil(page/sectionAmount)*sectionAmount)-sectionAmount+1;i<=insertNew;i++){
+                if(page==i) {
+                    pageData=pageData+'&nbsp&nbsp<u>'+i+'</u>';
+                } else {
+                    pageData=pageData+'&nbsp&nbsp<div onClick="pageDetectClick('+i+');">'+i+'</div>';
+                }
+            }
+            if(totalChats==0) {
+                pageData=pageData+'&nbsp&nbsp0';
+            }
+            pageData=pageData+'&nbsp&nbsp<div onClick="pageDetectClick(\'forward\');">></div>';
+            document.getElementById('pageNumber').innerHTML=pageData;                     
+        }
+
+		//An 8 digit alphanumeric generator
+        function generateId8Secure() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const arr = new Uint32Array(8);
+            window.crypto.getRandomValues(arr);
+        return Array.from(arr, v => chars[v % chars.length]).join("");
+        }
+        
+        //This loads the entire change messages payload backend
+        async function loadChatChange(changer) {
+            if("<%= aiAccessCode %>") {
+				startUpAiAccess="<%= aiAccessCode %>";
+			} else {
+				startUpAiAccess=generateId8Secure();
+			} 
+            let chatPayloadLoading=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+            let chatPayloadInfo=[];
+            if(firstLoad==false) {
+                 chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora, firstLoad, chatAmount, true];
+            } else {
+                chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora, firstLoad, chatAmount, false];
+            }
+            if(toCheck==0&&!newMessages.length) {
+                const cf=document.querySelector("#chatField");
+                scrollToMiddleFast(cf);
+            }
+            emit("loadChat", chatPayloadLoading, chatPayloadInfo, newMessages, false, blockedList, startAi, startUpAiAccess, aiAccess, aiInRoom[0], changer);
+        }
+
+        //Pagination detection click
+        function pageDetectClick(value) {
+            if (pageClickLock) return;
+            pageClickLock = true;firstLoad=false;
+            pageClick=1;messageIds.clear();           
+            const chat = document.getElementById("chatField");
+            chat.style.backgroundColor = "";
+            chat.style.pointerEvents = "";
+            chat.style.userSelect = "";
+            chat.blur();
+            pageChange(value);
+        }
+		
+		//Pagination change calculations
+        async function pageChange(value) {
+            totalChats=chatAmount;
+            if(!totalChats) {
+                totalChats=1;
+            }
+            if(value=='back') {
+                total=page-sectionAmount;
+                if(total==(sectionAmount-1)*-1) {
+                    page=Math.ceil(totalChats/pageLimit);
+                } else if(total<1) {
+                    page=1;
+                } else {
+                    page=total;
+                }
+            } else if(value=='forward') {
+                total=page+sectionAmount;
+                if(total==Math.ceil(totalChats/pageLimit)+sectionAmount) {
+                    page=1;
+                } else if(total>Math.ceil(totalChats/pageLimit)) {
+                    page=Math.ceil(totalChats/pageLimit);
+                } else {
+                    page=total;
+                }
+            } else {
+                page=value;
+            }
+            requestIdleCallback(pageLoad);
+            if(sortClicked || pageClick || searchingNow ) {
+                chatWindow.innerHTML="";
+                loadChatChange(false);
+            } else {
+                await loadChat();
+            }
+        }
+        
+        //This is writing HTML to the DOM for each chat message in array newMessages
+        async function loadChat() {
+            chatData = '';        
+            if(messageIds.length>pageLimit) {
+                sendChat=false;
+               const bubble = document.querySelector("#chatWindow .messageBubble:first-child");
+                if (bubble) bubble.remove();
+            }
+            let total = newMessages.length-1;
+            let start = total;
+            let end = Math.max(start - pageLimit + 1, 0);
+            document.getElementById("chatWindow").innerHTML="";
+            let totalHeight=0;let totalView = document.createElement("div");
+            for (let i = start; i >= end; i--) {
+                let aiCheck="<%= membership %>";
+                let [messageText, membershipNumber, author, botId, timestamp, chatIdTemp, messageOrder, voteYes, voteNo, weight, dupeCheck, status, markUpAi, rememberAi, targetsMsg] = newMessages[i];
+                if(!voteYes) {
+                    voteYes=0;
+                }
+                if(!voteNo) {
+                    voteNo=0;
+                }
+                voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+                if (voteId !== null) {
+                    vote.push(voteId);
+                }
+                const yesButton = document.createElement("div");
+                yesButton.className = "yes";
+                yesButton.style.cursor = "pointer";
+				yesButton.style.userSelect = "none";
+				yesButton.style.webkitTapHighlightColor = "transparent";
+                yesButton.appendChild(document.createTextNode("Yes: "+voteYes));
+                yesButton.ondblclick = async (e) => {
+                    e.stopPropagation();
+                    vote = [];
+                    voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+                    if (voteId !== null) {
+                        vote.push(voteId);
+                    }
+                    
+                    let found=false;
+                    for (let i = 0; i < vote.length; i++) {
+						if (vote[i][0] === chatIdTemp) {
+							found=true;
+							break;
+						}
+					}
+                    if(found===false) {
+						voteYes++;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+						voteState=1;
+					} else {
+						if(voteState==2) {
+							voteYes++;
+							voteNo--;
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+							voteState=0;
+						} else {
+							voteYes--;
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+							voteState=0;
+						}
+					}
+					yesButton.textContent = "Yes: " + voteYes;
+					noButton.textContent = "No: " + voteNo;					
+				};		
+				const noButton = document.createElement("div");
+                noButton.className = "no";
+                noButton.style.cursor = "pointer";
+				noButton.style.userSelect = "none";
+				noButton.style.webkitTapHighlightColor = "transparent";
+                noButton.appendChild(document.createTextNode("No: "+voteNo));
+                noButton.ondblclick = async (e) => {
+                    e.stopPropagation();
+                    vote = [];
+                    voteId = await checkingVote(chatIdTemp, myMembershipNumber);
+                    if (voteId !== null) {
+                        vote.push(voteId);
+                    }
+                    let found=false;
+                    for (let i = 0; i < vote.length; i++) {
+						if (vote[i][0] == chatIdTemp) {
+							found=true;
+							break;
+						}
+					}
+                    if(found===false) {
+						voteNo++;
+						castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+						voteState=2;
+					} else {
+						if(voteState==1) {
+							voteYes--;
+							voteNo++;
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "yes");
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+							voteState=0;
+						} else {
+							voteNo--;
+							castVote(chatIdTemp, myMembershipNumber, voteYes, voteNo, "no");
+							voteState=0;
+						}
+					}
+					yesButton.textContent = "Yes: " + voteYes;
+					noButton.textContent = "No: " + voteNo;				
+				};   
+                const reportButton = document.createElement("div");
+                reportButton.className = "report";
+                reportButton.appendChild(document.createTextNode("Report"));
+                const blockButton = document.createElement("div");
+                blockButton.className = "block";
+                blockButton.appendChild(document.createTextNode("Block"));     
+                blockButton.onclick = async (e) => {
+                    e.stopPropagation();
+                    let blockMembership = membershipNumber;
+                    await blockingNow(blockMembership);
+                    let chatPayloadLoading=[0, chatGroupId,"<%= username %>","<%= membership %>","<%= botPic %>","<%= myUsername %>","<%= myMembershipNumber %>","<%= myBotPic %>"];
+                    let chatPayloadInfo=[page, pageLimit, sortClick, searchingStill, clientInput, null, qora, qoraType, initialQora];
+                    emit("loadChat", chatPayloadLoading, chatPayloadInfo, newMessages, true, blockedList, startAi);
+                }
+                const messageOrderNumber = document.createElement("div");
+                messageOrderNumber.className = "messageOrder";
+                if(document.getElementById('sortType').innerHTML=='Sort: Old') {
+                    messageOrderNumber.appendChild(document.createTextNode("Message "+messageOrder));
+                } else if(document.getElementById('sortType').innerHTML=='Sort: New')  {
+                    messageOrderNumber.appendChild(document.createTextNode("Message "+messageOrder));
+                }
+                bubble=document.createElement("div");
+                bubble.className = "messageBubble";
+                bubble.id = `message-${chatIdTemp}`;
+                const filler = document.createElement("div");
+                filler.className = "messageBubbleFiller";
+                const filler2 = document.createElement("div");
+                filler2.className = "messageBubbleFiller2";
+                const settings2 = document.createElement("div");
+                const msg2 = document.createElement("div");
+                if(membershipNumber.endsWith("-AI")) {
+                    settings2.className = "messageSettings2";
+                    const bold2 = document.createElement("b");
+                    bold2.textContent = "Replying to:";      
+                    settings2.appendChild(bold2);
+                    msg2.className = "aisReply";
+                    msg2.textContent = targetsMsg;
+                }
+                const img = document.createElement("img");
+                img.className = "bubbleDisplayPic";
+                if(membershipNumber.endsWith("-AI")) {
+					img.src = `/favicon.ico`;
+				} else {
+					img.src = `/bots/bot (${botId}).jpg`;
+				}
+                const settings = document.createElement("div");
+                settings.className = "messageSettings";
+                if(membershipNumber.endsWith("-AI")) {
+                    const aiTitle = document.createElement("span");
+                    aiTitle.style.color = "blue";
+                    aiTitle.textContent = "360";
+                    aiTitle.style.marginRight = "0";
+                    settings.appendChild(aiTitle);
+                } else {
+                    settings.appendChild(document.createTextNode(author));
+                }
+                settings.appendChild(document.createTextNode("\u00A0"));
+                const bold = document.createElement("b");
+                bold.textContent = "Said:";
+                settings.appendChild(bold);
+                const msg = document.createElement("div");
+                msg.className = "theMessage";
+                msg.textContent = messageText;
+                if(!membershipNumber.endsWith("-AI")) {
+                    filler.appendChild(yesButton);
+                    filler.appendChild(noButton);
+                    filler.appendChild(reportButton);
+                    filler.appendChild(blockButton);
+                }
+                
+                if(membershipNumber.endsWith("-AI")) {
+                    filler2.appendChild(settings2);
+                    settings2.appendChild(msg2);
+                }
+                filler.appendChild(messageOrderNumber);
+                
+                filler.appendChild(img);
+                filler.appendChild(document.createTextNode("\u00A0"));
+                filler.appendChild(settings);
+                
+                filler.appendChild(msg);
+                if(membershipNumber.endsWith("-AI")) {
+                    const aiAsking = document.createElement("span");
+                    aiAsking.style.marginTop = "12.5px";
+                    aiAsking.style.color = "black";
+                    aiAsking.textContent = "Is this correct?";
+                    filler.appendChild(aiAsking)
+                }
+                if(membershipNumber.endsWith("-AI")) {
+                    bubble.appendChild(filler2);
+                }
+                bubble.appendChild(filler);
+                totalView.appendChild(bubble);
+            }
+            chatWindow.appendChild(totalView);
+            if(toCheck==0&&newMessages.length>0) {
+                const lc=document.querySelector("#chatWindow .messageBubble:last-child");
+                scrollToMiddleFast(lc);
+            } else if(toCheck==0&&!newMessages.length) {
+                const cf=document.querySelector("#chatField");//console.log("fire2");
+                scrollToMiddleFast(cf);            
+            }  else { 
+                toCheck=0;
+				const el = document.getElementById("textOptions");
+				scrollToMiddleFast(el);
+            }               
+        }
+		
+		//When casting a vote, this is the logic
+        async function castVote(chatId, membershipNumber, voteYes, voteNo, decision) {
+            const castingVote=[chatId, membershipNumber, voteState, chatGroupId, decision];
+            await fetch("/requestProcessing", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ castingVote }),
+            });
+            emit("voteUpdate", chatGroupId, chatId, voteYes, voteNo);
+        }
+        
+        //This checks the vote amounts for each chat message, i believe
+        async function checkingVote(chatId, membershipNumber) {
+            const checkingVote=[chatId, membershipNumber, chatGroupId];
+            const response = await fetch("/requestProcessing", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ checkingVote }),
+            });
+            if(response.ok) {
+                return response.json();
+            }
+        }
+		
+		//Scrolls to the middle of sent element
+		function scrollToMiddle(el) {
+			if (!el) return;
+			const rect = el.getBoundingClientRect();
+			const elementMiddle = rect.top + rect.height / 2;
+			const viewportMiddle = window.innerHeight / 2;
+			const alreadyCentered = Math.abs(elementMiddle - viewportMiddle) < 200;
+
+			if (!alreadyCentered) {
+				const absoluteTop = rect.top + window.pageYOffset;
+				const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
+				window.scrollTo({
+					top: middle,
+					behavior: "smooth"
+				});
+			}                
+		}
+		
+		//Scrolls fast to the middle of sent element
+        function scrollToMiddleFast(el) {
+            if (!el) return;
+			const rect = el.getBoundingClientRect();
+			const elementMiddle = rect.top + rect.height / 2;
+			const viewportMiddle = window.innerHeight / 2;
+			const alreadyCentered = Math.abs(elementMiddle - viewportMiddle) < 200;
+
+			if (!alreadyCentered) {
+				const absoluteTop = rect.top + window.pageYOffset;
+				const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
+				window.scrollTo({
+					top: middle,
+					behavior: "auto"
+				});
+			}
+        }
+        
+        //LEGACY
+        if(myRecruiter=='Owner') {
+            document.getElementById('wipeButton').style.display="flex";
+        }
+        
+        //LEGACY
+        async function wipeChat() {
+            await fetch("/requestProcessing", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ WipeData:myMembershipNumber }),
+            });
+            alert("Chats wiped!");
+        }
+        
+    </script>
+</html>

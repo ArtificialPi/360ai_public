@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            360AI
+        </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/my_admin_style">
+        <link rel="icon" href="/favicon.ico" type="image/png">
+    </head>
+    <body>
+        <div id="wholePage">
+            <div style="width:100%"><img src="favicon.ico" style="width:200px;margin:25px auto 0 auto;"></div>
+            <div style="max-width: calc( 100% - 10px );width:1920px;border: none;text-align:right;">v0.0.1</div>
+            <hr style="border:solid 1px rgba(102, 153, 255, 0.5);width:1920px;margin:25px 0 0 0;max-width:100%;">
+            <div id="profileContainer">
+                <div id="navigationMainMenu">
+                    <a href='/profile' class="navigationButton" >Profile</a><a href="/search" class="navigationButton">Search</a><a href="/questionoranswer" class="navigationButton">Q/A</a><div class="navigationButton" >Open Field</div><a href="/options" class="navigationButton" >Options</a>
+                </div>
+            </div>
+            <hr style="border:solid 1px rgba(102, 153, 255, 0.5);width:1920px;margin:0 0 0 0;max-width:100%;">
+            <div id="adminFeed"><div style="" class="selection" id="left"></div><div style="" id="dataFeed"><div id="adminWindow" style="display:none;flex-direction:column;justify-content:start;align-items:center;width: 750px;height:750px;position:absolute;top:0;left: 50%;transform: translate(-50%, 0);background-color:rgba(255,255,255,1);border:solid 1px rgba(102, 153, 255,0.5);color:solid 1px rgba(102, 153, 255,1);-webkit-tap-highlight-color: transparent;background-color: rgba(255,255,255,1);"></div></div><div style="" class="selection" id="right"></div></div>
+            <div style="height:50px;display:block;flex-direction:row;align-items:center;justify-content:start;margin:25px auto 0 auto;position:relative;width:1920px;max-width:100%;">	
+				<div class="titles" id="plusOptions" style=""><div id="option1" onclick="plus('sessions');">Sessions</div><div id="option2" onclick="plus('tokens');">Tokens</div><div id="option3" onclick="plus('votes/reports');">Votes/Reports</div><div id="option4" onclick="plus('chats');">Chats</div><div class="plusSign" onclick="plus();">+</div></div>
+				<textarea id="chatField" style="text-align: left;margin:0;position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);"></textarea>
+            </div>
+       </div>
+       <div id="footer">Copyright 360AI &copy; All Rights Reserved.</div>
+   </body>
+   <script>
+	//Handlers for websocket logic
+	const handlers = {};
+	function on(event, fn) {
+		handlers[event] = fn;
+	}
+	let ws;
+	let isConnecting = false;
+	let winStage = 0;
+	const win = document.getElementById("adminWindow");
+	const feed = document.getElementById("dataFeed");
+	let plusClick=true;
+	let dataPiece;let selectDataPiece=[];let selectChoice=[];let selectI=0;
+
+	connect();
+	//Websocket connection logic
+	function connect() {
+		if (isConnecting) return;
+		if (ws && ws.readyState === WebSocket.CONNECTING) return;
+		isConnecting = true;
+		if (window.location.hostname === "localhost") {
+			ws = new WebSocket("ws://localhost:3000");
+		} else if (window.location.hostname.startsWith("10.")) {
+			ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+		} else if (window.location.protocol === "https:") {
+			ws = new WebSocket(`wss://${window.location.hostname}/ws`);
+		} else {
+			ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+		}
+		ws.onclose = () => {
+			isConnecting = false;
+			ws = null;
+		};
+		ws.onerror = () => {
+			isConnecting = false;
+		};
+		ws.onmessage = (msg) => {
+			const { event, data } = JSON.parse(msg.data);
+			if (handlers[event]) handlers[event](data);
+		};
+		ws.addEventListener("open", () => {
+			isConnecting = false;
+			ws.send(JSON.stringify({
+				event: "adminJoin",
+				data: { room: "Admin" }
+			}));
+		});
+	}
+	
+	//The websocket function/handler for receive admin logs
+	handlers.loginEntry = (data) => {
+		console.log("Admin log:", data);
+		/*addLogToUI({
+			membershipNumber: data.membershipNumber,
+			content: data.content,
+			ua: data.ua,
+			ip: data.ip,
+			logType: data.logType,
+			timestamp: data.timestamp
+		});*/
+	};
+
+	//The + sign in admin for choosing an option
+	async function plus(choice) {
+		const admin = choice;
+		if(admin) {			
+			const response = await fetch("/requestProcessing", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ admin }),
+			});
+			if (!response.ok) {
+				throw new Error(`Server responded with ${response.status}`);
+			} else {
+				const result = await response.json();
+				dataPiece = result.data || [];
+			}
+			plusClick=true;
+			document.getElementById('option1').style.display="none";
+			document.getElementById('option2').style.display="none";
+			document.getElementById('option3').style.display="none";
+			document.getElementById('option4').style.display="none";
+			let htmlPiece='';
+			for(let i=0;i<dataPiece.length;i++) {
+				if(choice=="chats") {
+					htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+choice+'\',\''+dataPiece[i]+'\');" id="lchat-'+dataPiece[i]+'">'+dataPiece[i]+'</div>';
+				}
+				if(choice=="votes/reports") {
+					htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+choice+'\',\''+dataPiece[i]+'\');" id="lchat-votereport-'+dataPiece[i]+'">'+dataPiece[i]+'</div>';
+				}
+				if(choice=="tokens") {
+					htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+choice+'\',\''+dataPiece[i]+'\');" id="lchat-token-'+dataPiece[i]+'">'+dataPiece[i]+'</div>';
+				}
+				if(choice=="sessions") {
+					htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+choice+'\',\''+dataPiece[i]+'\');" id="lchat-session-'+dataPiece[i]+'">'+dataPiece[i]+'</div>';
+				}
+			}
+			document.getElementById('left').innerHTML=htmlPiece;
+		} else {
+			if(plusClick==true) {
+				plusClick=false;
+				document.getElementById('option1').style.display="flex";
+				document.getElementById('option2').style.display="flex";
+				document.getElementById('option3').style.display="flex";
+				document.getElementById('option4').style.display="flex";
+			} else {
+				plusClick=true;
+				document.getElementById('option1').style.display="none";
+				document.getElementById('option2').style.display="none";
+				document.getElementById('option3').style.display="none";
+				document.getElementById('option4').style.display="none";
+			}
+		}
+	}
+	
+	//The data piece being selected after options picked
+	function selectData(choice, dataPiece) {
+		if(!document.getElementById("lchat-"+selectDataPiece[selectChoice.length-1]) && selectChoice[selectChoice.length-1]==choice) {
+			if(selectChoice[selectChoice.length-1]=='chats' && !document.getElementById("rchat-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("left").innerHTML+='<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="lchat-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			}
+		}
+		if(selectDataPiece[selectDataPiece.length-1] && selectChoice[selectChoice.length-1]==choice) {
+			if(selectChoice[selectChoice.length-1]=='votes/reports' && !document.getElementById("rchat-votereport-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("left").innerHTML+='<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="lchat-votereport-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			}
+		}
+		if(selectDataPiece[selectDataPiece.length-1] && selectChoice[selectChoice.length-1]==choice) {
+			if(selectChoice[selectChoice.length-1]=='tokens' && !document.getElementById("rchat-token-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("left").innerHTML+='<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="lchat-token-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			}
+		}
+		if(selectDataPiece[selectDataPiece.length-1] && selectChoice[selectChoice.length-1]==choice) {
+			if(selectChoice[selectChoice.length-1]=='sessions' && !document.getElementById("rchat-session-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("left").innerHTML+='<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="lchat-session-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			}
+		}
+		selectDataPiece.push(dataPiece);
+		selectChoice.push(choice);		
+		if(selectChoice[selectChoice.length-1]=="chats") {
+			
+			if(document.getElementById("lchat-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("lchat-"+selectDataPiece[selectChoice.length-1]).remove();
+			}
+			
+			if(document.getElementById("rchat-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("rchat-"+selectDataPiece[selectChoice.length-1]).remove();
+			}		
+		}
+		if(selectChoice[selectChoice.length-1]=="votes/reports") {
+			if(document.getElementById("lchat-votereport-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("lchat-votereport-"+selectDataPiece[selectChoice.length-1]).remove();
+			}
+			
+			if(document.getElementById("rchat-votereport-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("rchat-votereport-"+selectDataPiece[selectChoice.length-1]).remove();
+			}		
+		}
+		if(selectChoice[selectChoice.length-1]=="tokens") {
+			if(document.getElementById("lchat-token-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("lchat-token-"+selectDataPiece[selectChoice.length-1]).remove();
+			}
+			
+			if(document.getElementById("rchat-token-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("rchat-token-"+selectDataPiece[selectChoice.length-1]).remove();
+			}
+		}
+		if(selectChoice[selectChoice.length-1]=="sessions") {
+			if(document.getElementById("lchat-session-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("lchat-session-"+selectDataPiece[selectChoice.length-1]).remove();
+			}
+			
+			if(document.getElementById("rchat-session-"+selectDataPiece[selectChoice.length-1])) {
+				document.getElementById("rchat-session-"+selectDataPiece[selectChoice.length-1]).remove();
+			}		
+		}
+		document.getElementById("adminWindow").style.display="flex";
+		if(choice=="chats") {
+			document.getElementById("adminWindow").innerHTML = '<div id="X" onclick="removalProcedure();">X</div>' + '<div class="titles">chatGroupId: <div class="paragraphs" id="' + dataPiece + '">' + dataPiece + '</div></div>';
+		}
+		if(choice=="votes/reports") {
+			document.getElementById("adminWindow").innerHTML = '<div id="X" onclick="removalProcedure();">X</div>' + '<div class="titles">voteReportWhoId: <div class="paragraphs" id="' + dataPiece + '">' + dataPiece + '</div></div>';
+		}
+		if(choice=="tokens") {
+			document.getElementById("adminWindow").innerHTML = '<div id="X" onclick="removalProcedure();">X</div>' + '<div class="titles">tokenId: <div class="paragraphs" id="' + dataPiece + '">' + dataPiece + '</div></div>';
+		}
+		if(choice=="sessions") {
+			document.getElementById("adminWindow").innerHTML = '<div id="X" onclick="removalProcedure();">X</div>' + '<div class="titles">id: <div class="paragraphs" id="' + dataPiece + '">' + dataPiece + '</div></div>';
+		}
+	}
+	
+	//The removal for the window that appears when selecting data piece
+	function removalProcedure() {
+		let htmlPiece='';
+		selectI++;	
+		if(selectChoice[selectChoice.length-1]=="chats") {
+			htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="rchat-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			if(document.getElementById('rchat-'+selectDataPiece[selectDataPiece.length-1])) {
+				document.getElementById('rchat-'+selectDataPiece[selectDataPiece.length-1]).remove();
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none";
+			} else {
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none"
+			}
+		}
+		if(selectChoice[selectChoice.length-1]=="votes/reports") {
+			htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="rchat-votereport-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			if(document.getElementById('rchat-votereport-'+selectDataPiece[selectDataPiece.length-1])) {
+				document.getElementById('rchat-votereport-'+selectDataPiece[selectDataPiece.length-1]).remove();
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none";
+			} else {
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none"
+			}
+		}
+		if(selectChoice[selectChoice.length-1]=="tokens") {
+			htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="rchat-token-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			if(document.getElementById('rchat-token-'+selectDataPiece[selectDataPiece.length-1])) {
+				document.getElementById('rchat-token-'+selectDataPiece[selectDataPiece.length-1]).remove();
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none";
+			} else {
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none"
+			}
+		}
+		if(selectChoice[selectChoice.length-1]=="sessions") {
+			htmlPiece = htmlPiece + '<div style="" onclick="selectData(\''+selectChoice[selectChoice.length-1]+'\',\''+selectDataPiece[selectDataPiece.length-1]+'\');" id="rchat-session-'+selectDataPiece[selectDataPiece.length-1]+'">'+selectDataPiece[selectDataPiece.length-1]+'</div>';
+			if(document.getElementById('rchat-session-'+selectDataPiece[selectDataPiece.length-1])) {
+				document.getElementById('rchat-session-'+selectDataPiece[selectDataPiece.length-1]).remove();
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none";
+			} else {
+				document.getElementById('right').innerHTML+=htmlPiece;
+				document.getElementById("adminWindow").style.display="none"
+			}
+		}
+	}
+	
+	//The logic for the window when selecting a data piece
+	win.addEventListener("dblclick", () => {
+		if (!winStage) {
+			win.style.position = "absolute";
+			win.style.top = "0";
+			win.style.left = "0";
+			win.style.right = "0";
+			win.style.bottom = "0";
+			win.style.width = "auto";
+			win.style.height = "auto";
+			win.style.transform = "none";
+			winStage = 1;
+		} else {
+			win.style.width = "750px";
+			win.style.height = "750px";
+			win.style.left = "50%";
+			win.style.top = "0";
+			win.style.right = "";
+			win.style.bottom = "";
+			win.style.transform = "translate(-50%, 0)";
+			win.style.position = "absolute";
+			winStage = 0;
+		}
+	});
+   </script>
+</html>

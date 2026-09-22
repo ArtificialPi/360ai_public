@@ -1,0 +1,22 @@
+360AI Educational License v0.0.1
+
+Copyright (c) 2026 Tyrone Pelletier / 360AI
+
+Permission is granted to any person to view, study, download, and modify this software for personal, educational, research, and non-commercial purposes.
+
+You may:
+- Learn from the source code.
+- Modify the source code.
+- Share modifications for non-commercial purposes.
+- Use the software for personal and educational projects.
+
+You may NOT:
+- Sell the software.
+- Host the software as a paid service.
+- Include the software in a commercial product.
+- Remove this license.
+- Rebrand and redistribute the software commercially.
+
+Commercial use requires explicit written permission from the copyright holder.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

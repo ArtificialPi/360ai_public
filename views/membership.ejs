@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            360AI
+        </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/my_membership_style">
+        <link rel="icon" href="/favicon.ico" type="image/png">
+    </head>
+    <body>
+        <div id="wholePage">
+            <div style="width:100%"><img src="favicon.ico" style="width:200px;margin:25px auto 0 auto;"></div>
+            <div style="max-width: calc( 100% - 10px );width:1920px;border: none;text-align:right;">v0.0.1</div>
+            <div style="text-align: center;width: 100%;max-width: calc( 100% - 4px );" id="area1">
+                <div class="titles">
+                    Contact Us
+                </div>
+                <div class="paragraphs">
+                    If you would like to contact us about any inquiries, we can be reached at the following: <a href="" style="color: rgba(102, 153, 255,1);">contact@360-ai.ca</a>
+                </div>
+            </div>
+            <div id="membershipContainer">
+                <div id="registerContainer" style="display:none;">
+                    <div class="titles" style="text-decoration: none;margin:0;">
+                        Register
+                    </div>
+                    <div class="paragraphs" style="margin:25px 0 25px 0;">
+                        Username (2-20): 
+                    </div>
+                    <div class="inputContainer"><input class='registerData' type="text"><div class="remarkInputContainer"><div class="remark"><div id='checkmark'  class="checkmark"></div> <div id='crossmark' class="crossmark"></div></div></div></div>
+                    <div style="font-size: 20px;margin:25px 0 25px 0;">
+                        Email: 
+                    </div>
+                    <div class="inputContainer"><input class='registerData' type="text" onclick=""><div class="remarkInputContainer"><div class="remark"><div id='checkmark2'  class="checkmark"></div> <div id='crossmark2' class="crossmark"></div></div></div></div>
+                    <div style="font-size: 20px;margin:25px 0 25px 0;">
+                        Password (6 or Greater): 
+                    </div>
+                    <div class="inputContainer"><input class='registerData' type="password"><div class="remarkInputContainer"><div class="remark"><div id='checkmark3'  class="checkmark"></div> <div id='crossmark3' class="crossmark"></div></div></div></div>
+                    <div style="font-size: 20px;margin:25px 0 25px 0;">
+                        Retype Password: 
+                    </div>
+                    <div class="inputContainer"><input class='registerData' type="password"><div class="remarkInputContainer"><div class="remark"><div id='checkmark4'  class="checkmark"></div> <div id='crossmark4' class="crossmark"></div></div></div></div>
+                    <div style="font-size: 20px;margin:25px 0 25px 0;">
+                        Recruiters Number (16): 
+                    </div>
+                    <div class="inputContainer"><input class='registerData' type="text"><div class="remarkInputContainer"><div class="remark"><div id='checkmark5'  class="checkmark"></div> <div id='crossmark5' class="crossmark"></div></div></div></div>
+					<div style="font-size: 20px;margin:25px 0 25px 0;">
+						<div class="infoCheck">I've read the&nbsp <a href='/termsandconditions' style="color: rgba(102, 153, 255,1);">Terms & Conditions</a><div class="checkWrapper"><label class="cb"><input type="checkbox" id="termsConditions"><span class="box"></span></label><div class="remarkContainer"><div class="remark"><div id='checkmark6'  class="checkmark"></div><div id='crossmark6' class="crossmark"></div></div></div></div></div>
+						<div class="infoCheck">I've read the&nbsp <a href='/privacypolicy' style="color: rgba(102, 153, 255,1);">Privacy Policy</a><div class="checkWrapper"><label class="cb"><input type="checkbox" id="privacyPolicy"><span class="box"></span></label><div class="remarkContainer"><div class="remark"><div id='checkmark7'  class="checkmark"></div><div id='crossmark7' class="crossmark"></div></div></div></div></div>
+						<div class="infoCheck">I'm 18+ years of age&nbsp<div class="checkWrapper"><label class="cb"><input type="checkbox" id="plus18"><span class="box"></span></label><div class="remarkContainer"><div class="remark"><div id='checkmark8'  class="checkmark"></div><div id='crossmark8' class="crossmark"></div></div></div></div></div>
+                    </div>
+                    <div class="submitButton" onClick="Register();">
+                        Submit
+                    </div>
+                </div>
+                <div id="loginContainer">
+                    <div class="titles" style="text-decoration: none;margin:0;">
+                        Login
+                    </div>
+                    <div class="paragraphs" style="margin:25px 0 25px 0;">
+                        Email: 
+                    </div>
+                    <div class="inputContainer"><input  class='loginData' type="text" style="width:200px;text-align: center;outline: none;"><div class="remarkInputContainer"><div class="remark"><div id='checkmark9'  class="checkmark"></div> <div id='crossmark9' class="crossmark"></div></div></div></div>
+                    <div class="paragraphs" style="margin:25px 0 25px 0;">
+                        Password: 
+                    </div>
+                    <div class="inputContainer"><input  class='loginData' type="password" style="width:200px;text-align: center;outline: none;"><div class="remarkInputContainer"><div class="remark"><div id='checkmark10'  class="checkmark"></div> <div id='crossmark10' class="crossmark"></div></div></div></div>
+                    <div class="submitButton" onClick="Login();">
+                        Submit
+                    </div>
+                    <div id="forgot" class="containerRowTitles">
+                        Forgot password?
+                        <label class="cb">
+                            <input type="checkbox" id="forgotPassword">
+                            <span class="box">
+                            </span>
+                        </label>
+                    </div>
+                    <div style="display: block;margin:25px 0 0 0;font-size: clamp(20px, 1vw, 30px);width:80%;">Don't have an account? Not a problem. Please <span style='color: rgba(102, 153, 255,1);cursor:pointer;user-select: none;-webkit-tap-highlight-color: transparent;' onClick="registering();"><u>click here</u></span> to register! Thank you</div>
+                </div>
+            </div>     
+        </div>
+        <div id="footer">Copyright 360AI &copy; All Rights Reserved.</div>
+        <div id="blackScreen"></div>
+            <div class="messageBubble" id="forgotPasswordMsg" onClick="removeForgotPassword();">
+				<div id="messageBubbleInner">
+					<div class="bubbleTitle">
+						Forgot Password!
+					</div>
+					<div class="bubbleParagraph">
+						We understand that remembering passwords isn't the easiest at times. Therefore, an email has been sent with a reset link inside. Once you've followed these steps you should be back on in no time!
+					</div>
+				</div>
+            </div>
+            <div class="messageBubble" id="verified" onClick="removeVerified();">
+				<div id="messageBubbleInner">
+					<div class="bubbleTitle">
+						Verified!
+					</div>
+					<div class="bubbleParagraph">
+						You've now completed the final step, verification. Next, you will patiently wait for administration to approve you and THEN you can login and see what the application has to offer. Cheers!
+					</div>
+				</div>
+            </div>
+            <div class="messageBubble" id="registered" onClick="removeRegisterUI();removeRegister(1);removeLogin(1);">
+				<div id="messageBubbleInner">
+				<div class="bubbleTitle">
+					You've Successfully Registered!
+				</div>
+				<div class="bubbleParagraph">
+					Many thanks for registering with our application. You should receive an email that may land in your spam folder. Please click the verification link inside for further processing. Thank you!
+				</div>
+				</div>
+            </div>
+    </body>
+    <script>
+	//Fetch abstraction logic
+	async function post(url, data) {
+		try {
+			const res = await fetch(url, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data)
+			});
+
+			if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+			return await res.json();
+		} catch (err) {
+			console.error("Fetch error:", err);
+			return { errors: ["server"] };
+		}
+	}
+	
+	//This portion is the keyDown for register and logic
+	document.addEventListener("keydown", e => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			if (e.target.matches(".registerData")) {
+				e.preventDefault();
+				Register();
+			}
+			if (e.target.matches(".loginData")) {
+				e.preventDefault();
+				Login();
+			}
+		}
+	});
+	
+	//When client reveals register container, auto scroll happens like so
+    async function registering() {
+        document.getElementById('registerContainer').style.display='flex';
+        const target = document.getElementById('registerContainer');
+        const offset = 12.5;
+        requestAnimationFrame(() => {
+            const top = target.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: top - offset,
+                behavior: "smooth"
+            });
+        });
+    }
+	
+	//If client has token request in the header. Show verified message
+    const token = "<%= token %>";
+    let confirmation=false;
+    connect();
+    async function connect() {
+		if(token.trim()!=="") {
+			const result = await post("/requestProcessing", { token, registering:true });
+			if(result.confirmation==true) {
+				document.getElementById('blackScreen').style.display='inline-block';
+				document.getElementById('verified').style.display='block';
+			}
+		}
+	}
+    
+	
+	//This is the entire register upon submit clicked response
+    async function Register() {
+        const elements = document.getElementsByClassName("registerData");
+        registerInfo=[];confirmationCheck=[];
+        confirmationCheck.push(document.getElementById('termsConditions').checked);
+        confirmationCheck.push(document.getElementById('privacyPolicy').checked);
+        confirmationCheck.push(document.getElementById('plus18').checked);
+        for (i=0;i<elements.length;i++) {
+            registerInfo.push(elements[i].value.trim());
+        }
+        try {	
+            const result = await post("/requestProcessing", { registerInfo, confirmationCheck });
+			errors = result.errors || [];
+			if(Array.isArray(errors) && errors.length>0) {
+				const elements = document.getElementsByClassName("loginData");
+				removeLogin(1);
+				removeRegister(0);
+				for (i=0;i<errors.length;i++) {
+					if(errors[i]=='name') {
+						document.getElementById('crossmark').style.display='grid';
+						document.getElementById('checkmark').style.display='none';
+						break;
+					} else { 
+						document.getElementById('crossmark').style.display='none';
+						document.getElementById('checkmark').style.display='inline-block';
+					}
+				}
+				for (i=0;i<errors.length;i++) {
+					if(errors[i]=='email') {
+						document.getElementById('crossmark2').style.display='grid';
+						document.getElementById('checkmark2').style.display='none';
+						break;
+					} else {
+						document.getElementById('crossmark2').style.display='none';
+						document.getElementById('checkmark2').style.display='inline-block';
+					}
+				}
+				for (i=0;i<errors.length;i++) {
+					if(errors[i]=='password') {
+						document.getElementById('crossmark3').style.display='grid';
+						document.getElementById('crossmark4').style.display='grid';
+						document.getElementById('checkmark3').style.display='none';
+						document.getElementById('checkmark4').style.display='none';
+						break;
+					} else {
+						document.getElementById('crossmark3').style.display='none';
+						document.getElementById('crossmark4').style.display='none';
+						document.getElementById('checkmark3').style.display='inline-block';
+						document.getElementById('checkmark4').style.display='inline-block';
+					}
+				}
+				for (i=0;i<errors.length;i++) {
+					 if(errors[i]=='recruiter') {
+						document.getElementById('crossmark5').style.display='grid';
+						document.getElementById('checkmark5').style.display='none';
+						break;
+					} else {
+						document.getElementById('crossmark5').style.display='none';
+						document.getElementById('checkmark5').style.display='inline-block';
+					}
+				}
+				if(document.getElementById('termsConditions').checked==false) {
+					document.getElementById('crossmark6').style.display='grid';
+					document.getElementById('checkmark6').style.display='none';
+				} else {
+					document.getElementById('crossmark6').style.display='none';
+					document.getElementById('checkmark6').style.display='inline-block';
+				}
+				if(document.getElementById('privacyPolicy').checked==false) {
+					document.getElementById('crossmark7').style.display='grid';
+					document.getElementById('checkmark7').style.display='none';
+				} else {
+					document.getElementById('crossmark7').style.display='none';
+					document.getElementById('checkmark7').style.display='inline-block';
+				}
+				if(document.getElementById('plus18').checked==false) {
+					document.getElementById('crossmark8').style.display='grid';
+					document.getElementById('checkmark8').style.display='none';
+				} else {
+					document.getElementById('crossmark8').style.display='none';
+					document.getElementById('checkmark8').style.display='inline-block';
+				}
+			} else {
+				username=registerInfo[0];
+				anEmail=registerInfo[1];
+				membershipNumber=result.membershipNumber;
+				recruiterNumber=registerInfo[4];
+				tokenNumber=result.tokenNumber;
+				document.getElementById('crossmark').style.display='none';
+				for (let i = 2; i <= 8; i++) {
+					const cross = document.getElementById(`crossmark${i}`);
+					if (cross) cross.style.display = 'none';
+				}
+				document.getElementById('checkmark').style.display='inline-block';
+				for (let i = 2; i <= 8; i++) {
+					const check = document.getElementById(`checkmark${i}`);
+					if (check) check.style.display = 'inline-block';
+				}
+				document.getElementById('blackScreen').style.display='inline-block';
+				document.getElementById('registered').style.display='block';
+			}
+        } catch (err) {
+            console.error('Server error:', err);
+        }
+    }
+	
+	//When you register a popup window shows up. This removes it
+    async function removeRegisterUI() {
+        document.getElementById('blackScreen').style.display='none';
+        document.getElementById('registered').style.display='none';
+        removeRegister(1);
+    }
+
+	//This clears all markings of right or wrong on register side
+    async function removeRegister(choice) {
+        document.querySelectorAll(
+            '#blackScreen, #registered'
+        ).forEach(el => el.style.display = 'none');
+        document.getElementById('checkmark').style.display='none';
+        document.getElementById('crossmark').style.display='none';
+        for (let i = 2; i <= 8; i++) {
+            const cross = document.getElementById(`crossmark${i}`);
+            const check = document.getElementById(`checkmark${i}`);
+            if (cross) cross.style.display = 'none';
+            if (check) check.style.display = 'none';
+        }
+        document.querySelectorAll(
+            '#termsConditions, #privacyPolicy, #plus18, #forgotPassword'
+        ).forEach(el => el.checked = false);
+        if(choice) {
+            document.querySelectorAll('.registerData')
+                .forEach(el => el.value = '');
+        }
+    }
+
+	//This clears all markings of right or wrong on login side
+    async function removeLogin(choice) {
+        document.querySelectorAll(
+            '#blackScreen, #registered'
+        ).forEach(el => el.style.display = 'none');
+        for (let i = 9; i <= 10; i++) {
+            const cross = document.getElementById(`crossmark${i}`);
+            const check = document.getElementById(`checkmark${i}`);
+            if (cross) cross.style.display = 'none';
+            if (check) check.style.display = 'none';
+        }
+        document.querySelectorAll(
+            '#forgotPassword'
+        ).forEach(el => el.checked = false);
+        if(choice) {
+            document.querySelectorAll('.loginData')
+                .forEach(el => el.value = '');
+        }
+    }
+
+	//This is the entire login upon submit clicked response
+    async function Login() {
+        const elements = document.getElementsByClassName("loginData");
+        loginInfo=[];forgotPassword=[];
+        forgotPassword.push(document.getElementById('forgotPassword').checked);
+        for (i=0;i<elements.length;i++) {
+            loginInfo.push(elements[i].value.trim());
+        }
+        try {	
+            const result = await post("/requestProcessing", { loginInfo, forgotPassword });
+			errors = result.errors || [];
+			if(errors[1]!="forgotpassword") {
+				if(Array.isArray(errors) && errors.length>0) {
+					removeRegister(1);
+					removeLogin(1);
+					document.getElementById('crossmark9').style.display='grid';
+					document.getElementById('crossmark10').style.display='grid';
+				} else {
+					anEmail=loginInfo[0];
+					password=loginInfo[1];
+					removeRegister(0);
+					removeLogin(0);
+					document.getElementById('checkmark9').style.display='grid';
+					document.getElementById('checkmark10').style.display='grid';
+					setTimeout(() => {
+						removeLogin(1);
+						window.location.href = "/profile";
+					}, 1000);
+				}
+			} else {
+				document.getElementById('blackScreen').style.display='inline-block';
+				document.getElementById('forgotPasswordMsg').style.display='block';
+				removeRegister(1);
+				removeLogin(1);
+			}
+        } catch (err) {
+            console.error('Server error:', err);
+        }
+    }
+	
+	//When you verify a popup window shows up. This removes it
+    async function removeVerified() {
+        document.getElementById('blackScreen').style.display='none';
+        document.getElementById('verified').style.display='none';
+    }
+	
+	//When you checkmark forgot password & submit, a popup window shows up. This removes it
+    async function removeForgotPassword() {
+        document.getElementById('blackScreen').style.display='none';
+        document.getElementById('forgotPasswordMsg').style.display='none';
+    }
+
+    </script>
+</html>
