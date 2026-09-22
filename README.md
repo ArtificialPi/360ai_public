@@ -19,7 +19,7 @@ The project is intended for experimentation, research, and education.
 
 Installation
 
-git clone <repo-url>
+git clone https://github.com/ArtificialPi/360ai_public.git
 
 cd 360ai
 
