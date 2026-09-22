@@ -1,4 +1,4 @@
-# 360ai
+# 360AI
 
 360AI is an experimental AI framework focused on learning, reasoning, calibration, and human feedback.
 
