@@ -30,8 +30,11 @@ Environment Variables
 Create a .env file:
 
 EMAIL_USER=
+
 EMAIL_PASS=
+
 SECRET=
+
 HOST=
 
 NOTE: SECRET is for session/cookie and HOST is for email user and password credentials for firing off emails. Thank you
